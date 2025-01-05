@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '0 0 * * *' # 毎日午前0時に実行
 
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
