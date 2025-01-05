@@ -2,5 +2,5 @@
 .venv
 .env
 notion_api_errors.log
-scripts/__pycache__
+__pycache__
 .vscode/
