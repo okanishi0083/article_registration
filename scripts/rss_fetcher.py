@@ -21,7 +21,7 @@ class ContentFetcher:
         return None
 
     def fetch_entries(self):
-        all_entries = {RSSTypes.NIKKEI: [], RSSTypes.ITMEDIA: []}
+        all_entries = RSSTypes.initialize_entries()
         try:
             for url in self.urls:
                 rss_type = self._determine_rss_type(url)
@@ -49,23 +49,19 @@ class ContentFetcher:
 
         return all_entries
 
-    def filter_recent_entries(self, entries):
-        recent_entries = []
-        cutoff_date = datetime.now() - timedelta(days=2)
-        for entry in entries:
-            try:
-                entry_date = datetime(*entry.published_parsed[:6])
-                if entry_date >= cutoff_date:
-                    recent_entries.append(
-                        {
-                            "title": entry.title,
-                            "url": entry.link,
-                            "date": entry_date.strftime("%Y-%m-%d"),
-                            "description": entry.description,
-                        }
-                    )
-            except Exception as e:
-                raise ParseError(
-                    f"Error processing entry: {entry.title if 'title' in entry else 'Unknown'}: {e}"
-                )
-        return recent_entries
+    def filter_recent_entries(self, entry, date_field, cutoff_date, field_mapping):
+        # cutoff_date = datetime.now() - timedelta(days=2)
+        try:
+            entry_date = datetime(*getattr(entry, date_field)[:6])
+            if entry_date >= cutoff_date:
+                return {
+                    "title": getattr(entry, field_mapping["title"]),
+                    "url": getattr(entry, field_mapping["url"]),
+                    "date": entry_date.strftime("%Y-%m-%d"),
+                    "description": getattr(entry, field_mapping["description"]),
+                }
+        except Exception as e:
+            raise ParseError(
+                f"Error processing entry: {entry.title if 'title' in entry else 'Unknown'}: {e}"
+            )
+        return None
