@@ -3,8 +3,7 @@ from datetime import datetime, timedelta
 
 import feedparser
 import requests
-
-from scripts.exceptions import FetchError, ParseError, UnexpectedError
+from exceptions import FetchError, ParseError, UnexpectedError
 
 
 class ContentFetcher:

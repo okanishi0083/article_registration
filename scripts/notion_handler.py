@@ -1,8 +1,7 @@
 import logging
 
 import requests
-
-from scripts.exceptions import CompareAndUpdate, FetchError, NotionAPIError, ParseError
+from exceptions import CompareAndUpdate, FetchError, NotionAPIError, ParseError
 
 logging.basicConfig(filename="notion_api_errors.log", level=logging.ERROR)
 
