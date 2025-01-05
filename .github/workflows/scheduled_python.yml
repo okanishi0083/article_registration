@@ -11,6 +11,8 @@ jobs:
     steps:
     - name: コードをチェックアウト
       uses: actions/checkout@v4
+      with:
+        ref: main
 
     - name: Pythonのバージョンを読み込み
       id: python-version
@@ -21,13 +23,13 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: 仮想環境のキャッシュをリストア
-      uses: actions/cache@v3
-      with:
-        path: .venv
-        key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-venv-
+    # - name: 仮想環境のキャッシュをリストア
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: .venv
+    #     key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-venv-
 
     - name: 仮想環境を作成
       run: |
