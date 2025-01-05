@@ -3,3 +3,4 @@
 .env
 notion_api_errors.log
 scripts/__pycache__
+.vscode/
