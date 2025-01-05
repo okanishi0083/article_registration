@@ -1,9 +1,15 @@
 import logging
 import os
 
-from scripts.exceptions import CompareAndUpdate, FetchError, NotionAPIError, ParseError
-from scripts.notion_handler import DataHandler
-from scripts.rss_fetcher import ContentFetcher
+from exceptions import (
+    CompareAndUpdate,
+    FetchError,
+    NotionAPIError,
+    ParseError,
+    UnexpectedError,
+)
+from notion_handler import DataHandler
+from rss_fetcher import ContentFetcher
 
 # ログ設定
 logging.basicConfig(filename="application_errors.log", level=logging.ERROR)
