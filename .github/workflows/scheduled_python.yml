@@ -42,4 +42,4 @@ jobs:
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
       run: |
         source .venv/bin/activate
-        python scripts/script.py
+        python scripts/main.py
