@@ -12,7 +12,7 @@ class ContentFetcher:
     def __init__(self, urls):
         self.urls = urls
 
-    def determine_rss_type(self, url):
+    def _determine_rss_type(self, url):
         if RSSTypes.NIKKEI in url:
             return RSSTypes.NIKKEI
         elif RSSTypes.ITMEDIA in url:
@@ -24,7 +24,7 @@ class ContentFetcher:
         all_entries = {RSSTypes.NIKKEI: [], RSSTypes.ITMEDIA: []}
         try:
             for url in self.urls:
-                rss_type = self.determine_rss_type(url)
+                rss_type = self._determine_rss_type(url)
                 if not rss_type:
                     logging.warning(f"Unknown RSS type for URL: {url}")
                     continue
