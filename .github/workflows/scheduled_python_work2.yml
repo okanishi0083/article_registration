@@ -2,7 +2,7 @@ name: Scheduled Python Script with Python Version Consistency
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 毎日午前0時に実行
+    - cron: '40 2 * * *' # 毎日午前0時に実行
 
 jobs:
   run-script:
