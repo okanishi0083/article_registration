@@ -1,31 +1,61 @@
-import json
-from scraper import ITMediaBusinessScraper, ITMediaEnterpriseScraper
-from notion import create_notion_json
+import logging
+import os
 
-DATABASE_ID = 'your_database_id_here'
+from scripts.exceptions import CompareAndUpdate, FetchError, NotionAPIError, ParseError
+from scripts.notion_handler import DataHandler
+from scripts.rss_fetcher import ContentFetcher
+
+# ログ設定
+logging.basicConfig(filename="application_errors.log", level=logging.ERROR)
+
 
 def main():
-    business_scraper = ITMediaBusinessScraper(
-        url="https://www.itmedia.co.jp/business/subtop/digitalgovernment/",
-        date_format="%Y年%m月%d日"
-    )
-    enterprise_scraper = ITMediaEnterpriseScraper(
-        url="https://www.itmedia.co.jp/enterprise/subtop/archive/",
-        date_format="%Y年%m月%d日",
-        keywords=["IT", "LLM", "DX", "AI"]
-    )
 
-    for scraper in [business_scraper, enterprise_scraper]:
-        soup = scraper.fetch_articles()
-        if soup:
-            articles = scraper.parse_articles(soup)
-            filtered_articles = scraper.filter_articles(articles)
-            for article in filtered_articles:
-                notion_json = create_notion_json(article['title'], article['date'], article['url'], DATABASE_ID)
-                print(json.dumps(notion_json, ensure_ascii=False, indent=2))
-                # Here you would send the JSON to Notion API
-                # response = requests.post(notion_url, headers=headers, json=notion_json)
-                # print(response.status_code, response.json())
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        print("Running in GitHub Actions")
+    else:
+        from dotenv import load_dotenv
+
+        load_dotenv()
+
+    rss_urls = os.getenv("RSS_URLS").split(",")
+    database_id = os.getenv("NOTION_DATABASE_ID")
+    notion_api_key = os.getenv("NOTION_API_KEY")
+
+    fetcher = ContentFetcher(rss_urls)
+    handler = DataHandler(database_id, notion_api_key)
+
+    try:
+        rss_datas = fetcher.fetch_entries()
+        rss_entries = fetcher.filter_recent_entries(rss_datas)
+    except (FetchError, ParseError, UnexpectedError) as e:
+        logging.error(f"RSS processing error: {e}")
+        return
+
+    try:
+        existing_entries = handler.fetch_existing_entries()
+    except NotionAPIError as e:
+        logging.error(f"Notion API error: {e}")
+        return
+
+    try:
+        new_entries, updated_entries = handler.compare_and_update(rss_entries)
+    except CompareAndUpdate as e:
+        logging.error(f"Notion API error: {e}")
+        return
+
+    try:
+        for entry in new_entries:
+            handler.post_to_notion(entry)
+    except NotionAPIError as e:
+        logging.error(f"Error posting new entry to Notion: {e}")
+
+        try:
+            for entry in updated_entries:
+                handler.update_notion_entry(entry)
+        except NotionAPIError as e:
+            logging.error(f"Error updating entry in Notion: {e}")
+
 
 if __name__ == "__main__":
     main()
