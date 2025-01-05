@@ -1,2 +1,6 @@
 *.swp
 .venv
+.env
+notion_api_errors.log
+__pycache__
+.vscode/
