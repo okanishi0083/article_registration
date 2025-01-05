@@ -1,2 +1,4 @@
 *.swp
 .venv
+.env
+notion_api_errors.log
