@@ -42,6 +42,7 @@ jobs:
       env:
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        RSS_URLS: ${{ secrets.RSS_URLS }}
         PYTHONPATH: ${{ github.workspace }}
       run: |
         source .venv/bin/activate
