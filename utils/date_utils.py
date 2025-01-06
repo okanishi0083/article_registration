@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 
-def get_cutoff_date(days=60):
+def get_cutoff_date(days=100):
     """Returns the cutoff date for filtering recent entries.
 
     Args:
