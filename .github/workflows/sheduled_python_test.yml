@@ -1,0 +1,49 @@
+name: Scheduled Python Script with Python Version Consistency
+
+on:
+  schedule:
+    - cron: '40 3 * * *' # 毎日午前0時に実行
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: コードをチェックアウト
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Pythonのバージョンを読み込み
+      id: python-version
+      run: echo "PYTHON_VERSION=$(cat .python-version)" >> $GITHUB_ENV
+
+    - name: Pythonをセットアップ
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 仮想環境のキャッシュをリストア
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-venv-
+
+    - name: 仮想環境を作成
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Pythonスクリプトを実行
+      env:
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        RSS_URLS: ${{ secrets.RSS_URLS }}
+        PYTHONPATH: ${{ github.workspace }}
+      run: |
+        source .venv/bin/activate
+        python scripts/main.py
