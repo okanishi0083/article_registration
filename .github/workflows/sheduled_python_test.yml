@@ -1,4 +1,4 @@
-name: Scheduled Python Script with Python Version Consistency
+name: Scheduled Python Script with Python Version Consistencyv2
 
 on:
   schedule:
