@@ -2,7 +2,7 @@ name: Scheduled Python Script with Python Version Consistency
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 毎日午前0時に実行
+    - cron: '40 2 * * *' # 毎日午前0時に実行
 
 jobs:
   run-script:
@@ -23,13 +23,13 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-    # - name: 仮想環境のキャッシュをリストア
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: .venv
-    #     key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-venv-
+    - name: 仮想環境のキャッシュをリストア
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-venv-
 
     - name: 仮想環境を作成
       run: |
@@ -42,6 +42,7 @@ jobs:
       env:
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         source .venv/bin/activate
         python scripts/main.py
