@@ -14,6 +14,7 @@ from rss_fetcher import ContentFetcher
 
 from constant.date_fields import DateFields
 from constant.field_mappings import FieldMappings
+from constant.word_by_check import WordByCheck
 from utils.date_utils import format_datetime, get_cutoff_date
 
 # ログ設定
@@ -61,6 +62,22 @@ def main():
             field_mapping = FieldMappings.get(rss_type)
 
             for entry in entry_list:
+
+                # タイトル、本文に含まれているかチェックする単語の配列
+                keywords = WordByCheck.get_keywords(rss_type)
+
+                # タイトルにキーワードが含まれていなければ次の記事へ
+                if not fetcher.contains_any_keyword(
+                    entry, field_mapping["title"], keywords
+                ):
+                    continue
+
+                # 本文にキーワードが含まれていなければ次の記事へ
+                if fetcher.contains_any_keyword(
+                    entry, field_mapping["description"], keywords
+                ):
+                    continue
+
                 update_data = []
                 recent_entry = fetcher.filter_recent_entries(
                     entry, date_field, cutoff_date, field_mapping

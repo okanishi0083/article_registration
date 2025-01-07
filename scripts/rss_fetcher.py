@@ -47,6 +47,10 @@ class ContentFetcher:
 
         return self.all_entries
 
+    def contains_any_keyword(self, entry, field_key, keywords):
+        field_value = getattr(entry, field_key, "").lower()
+        return any(keyword.lower() in field_value for keyword in keywords)
+
     def filter_recent_entries(self, entry, date_field, cutoff_date, field_mapping):
         # cutoff_date = datetime.now() - timedelta(days=2)
         try:
