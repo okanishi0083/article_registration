@@ -3,9 +3,9 @@ from constant.rss_types import RSSTypes
 
 class WordByCheck:
     WORDS = {
-        RSSTypes.NIKKEI: ["AI", "Google", "DX", "AWS"],
-        RSSTypes.ITMEDIA: ["AI", "Google", "DX", "AWS"],
-        RSSTypes.MYNABI: ["AI", "Google", "DX", "AWS"],
+        RSSTypes.NIKKEI: ["AI", "Google", "DX", "AWS", "IT"],
+        RSSTypes.ITMEDIA: ["AI", "Google", "DX", "AWS", "IT"],
+        RSSTypes.MYNABI: ["AI", "Google", "DX", "AWS", "ノーコード", "IT"],
     }
 
     @classmethod
