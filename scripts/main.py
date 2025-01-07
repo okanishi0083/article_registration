@@ -86,22 +86,13 @@ def main():
         CompareAndUpdate,
     ) as e:
         logging.error(f"Error: {e}")
+        exit()
     except FetchExistingEntriesError as e:
         logging.error(f"FetchExistingEntriesError: {e}")
+        exit()
     except Exception as e:
         logging.error(f"Exception: {e}")
-
-    # try:
-    #     existing_entries = handler.fetch_existing_entries()
-    # except NotionAPIError as e:
-    #     logging.error(f"Notion API error: {e}")
-    #     return
-
-    # try:
-    #     new_entries, updated_entries = handler.compare_and_update(rss_entries)
-    # except CompareAndUpdate as e:
-    #     logging.error(f"Notion API error: {e}")
-    #     return
+        exit()
 
     try:
         for entry in new_entries:

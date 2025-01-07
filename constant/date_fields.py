@@ -2,7 +2,11 @@ from constant.rss_types import RSSTypes
 
 
 class DateFields:
-    FIELDS = {RSSTypes.NIKKEI: "updated_parsed", RSSTypes.ITMEDIA: "published_parsed"}
+    FIELDS = {
+        RSSTypes.NIKKEI: "updated_parsed",
+        RSSTypes.ITMEDIA: "published_parsed",
+        RSSTypes.MYNABI: "updated_parsed",
+    }
 
     @classmethod
     def get(cls, rss_type):
