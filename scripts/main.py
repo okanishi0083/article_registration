@@ -66,14 +66,10 @@ def main():
                 # タイトル、本文に含まれているかチェックする単語の配列
                 keywords = WordByCheck.get_keywords(rss_type)
 
-                # タイトルにキーワードが含まれていなければ次の記事へ
+                # タイトルに指定の文字が含まれてないない、かつ、本文にも含まれていなければ処理対象外
                 if not fetcher.contains_any_keyword(
                     entry, field_mapping["title"], keywords
-                ):
-                    continue
-
-                # 本文にキーワードが含まれていなければ次の記事へ
-                if fetcher.contains_any_keyword(
+                ) and not fetcher.contains_any_keyword(
                     entry, field_mapping["description"], keywords
                 ):
                     continue
