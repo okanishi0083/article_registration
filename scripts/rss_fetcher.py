@@ -11,17 +11,15 @@ from constant.rss_types import RSSTypes
 class ContentFetcher:
     def __init__(self, urls):
         self.urls = urls
+        self.all_entries = RSSTypes.initialize_entries()
 
     def _determine_rss_type(self, url):
-        if RSSTypes.NIKKEI in url:
-            return RSSTypes.NIKKEI
-        elif RSSTypes.ITMEDIA in url:
-            return RSSTypes.ITMEDIA
-        # 他の条件を追加可能
+        for rss_type in RSSTypes.get_all_types():
+            if rss_type in url:
+                return rss_type
         return None
 
     def fetch_entries(self):
-        all_entries = RSSTypes.initialize_entries()
         try:
             for url in self.urls:
                 rss_type = self._determine_rss_type(url)
@@ -36,7 +34,7 @@ class ContentFetcher:
                     raise ParseError(f"Failed to parse feed: {url}")
 
                 for entry in feed.entries:
-                    all_entries[rss_type].append(entry)
+                    self.all_entries[rss_type].append(entry)
 
         except requests.exceptions.RequestException as e:
             raise FetchError(f"Network error fetching RSS feed from {url}: {e}")
@@ -47,7 +45,11 @@ class ContentFetcher:
         except Exception as e:
             raise UnexpectedError(f"Unexpected error fetching RSS feed from {url}: {e}")
 
-        return all_entries
+        return self.all_entries
+
+    def contains_any_keyword(self, entry, field_key, keywords):
+        field_value = getattr(entry, field_key, "").lower()
+        return any(keyword.lower() in field_value for keyword in keywords)
 
     def filter_recent_entries(self, entry, date_field, cutoff_date, field_mapping):
         # cutoff_date = datetime.now() - timedelta(days=2)

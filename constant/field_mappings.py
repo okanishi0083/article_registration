@@ -13,6 +13,11 @@ class FieldMappings:
             "url": "link",
             "description": "summary",
         },
+        RSSTypes.MYNABI: {
+            "title": "title",
+            "url": "id",
+            "description": "summary",
+        },
     }
 
     @classmethod
