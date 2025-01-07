@@ -1,8 +1,8 @@
-name: Scheduled Python Script with Python Version Consistency
+name: Scheduled Python Script with Python Version Consistencyv2
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 毎日午前0時に実行
+    - cron: '25 5 * * *' # 毎日午前0時に実行
 
 jobs:
   run-script:
@@ -11,6 +11,8 @@ jobs:
     steps:
     - name: コードをチェックアウト
       uses: actions/checkout@v4
+      with:
+        ref: main
 
     - name: Pythonのバージョンを読み込み
       id: python-version
@@ -40,6 +42,8 @@ jobs:
       env:
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        RSS_URLS: ${{ secrets.RSS_URLS }}
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         source .venv/bin/activate
         python scripts/main.py
