@@ -6,6 +6,7 @@ class WordByCheck:
         RSSTypes.NIKKEI: ["AI", "Google", "DX", "AWS", "IT"],
         RSSTypes.ITMEDIA: ["AI", "Google", "DX", "AWS", "IT"],
         RSSTypes.MYNABI: ["AI", "Google", "DX", "AWS", "ノーコード", "IT"],
+        RSSTypes.ENTERPRISEZINE: ["AI", "Google", "DX", "AWS", "ノーコード", "IT"],
     }
 
     @classmethod

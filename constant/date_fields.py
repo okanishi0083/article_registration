@@ -6,6 +6,7 @@ class DateFields:
         RSSTypes.NIKKEI: "updated_parsed",
         RSSTypes.ITMEDIA: "published_parsed",
         RSSTypes.MYNABI: "updated_parsed",
+        RSSTypes.ENTERPRISEZINE: "updated_parsed",
     }
 
     @classmethod

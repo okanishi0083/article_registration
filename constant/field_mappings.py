@@ -18,6 +18,11 @@ class FieldMappings:
             "url": "id",
             "description": "summary",
         },
+        RSSTypes.ENTERPRISEZINE: {
+            "title": "title",
+            "url": "id",
+            "description": "summary",
+        },
     }
 
     @classmethod
