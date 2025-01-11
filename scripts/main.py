@@ -1,6 +1,13 @@
+import json
 import logging
 import os
 
+from chat_gpt import CustomGPTClient
+from create_chat_gpt_param import (
+    edit_user_input,
+    system_message_generator,
+    temperature_generator,
+)
 from exceptions import (
     CompareAndUpdate,
     FetchError,
@@ -32,6 +39,7 @@ def main():
 
     rss_urls = os.getenv("RSS_URLS").split(",")
     database_id = os.getenv("NOTION_DATABASE_ID")
+    tag_database_id = os.getenv("NOTION_TAG_DATABASE_ID")
     notion_api_key = os.getenv("NOTION_API_KEY")
 
     # 現在日付から2日前の日付を取得
@@ -40,8 +48,17 @@ def main():
     now_date = get_cutoff_date(0)
 
     fetcher = ContentFetcher(rss_urls)
+
+    custom_gpt_client = CustomGPTClient(
+        api_key=os.getenv("CHAT_GPT_KEY"),
+        custom_gpt_id=os.getenv("CUSTOM_GPT_ID"),
+        system_message_generator=system_message_generator,
+        edit_user_input=edit_user_input,
+        temperature_generator=temperature_generator,
+    )
     handler = DataHandler(
         database_id,
+        tag_database_id,
         notion_api_key,
         format_datetime(cutoff_date),
         format_datetime(now_date),
@@ -52,6 +69,11 @@ def main():
 
         # 既存のエントリーを取得
         existing_entries = handler.fetch_existing_entries()
+
+        # タグデータ取得
+        fetch_tags = handler.fetch_tags()
+        extract_relation_ids = handler.extract_relation_ids(fetch_tags)
+        extract_names_as_string = handler.extract_names_as_string(extract_relation_ids)
 
         new_entries = []
         updated_entries = []
@@ -79,6 +101,22 @@ def main():
                     entry, date_field, cutoff_date, field_mapping
                 )
                 if recent_entry:
+                    # TODO ここでchatgptapi呼び出し
+                    gpt_result = custom_gpt_client.send_message(
+                        tag_data=extract_names_as_string, entry=entry
+                    )
+                    # 取得した文字列を配列に変換
+                    gpt_result_array = json.loads(gpt_result)
+                    filtered_relation_ids_by_api_result = (
+                        handler.filtered_relation_ids_by_api_result(
+                            gpt_result_array, extract_relation_ids
+                        )
+                    )
+
+                    entry = fetcher.add_tag_data(
+                        recent_entry, filtered_relation_ids_by_api_result
+                    )
+
                     # 新規エントリーと更新エントリーを比較・更新
                     is_new, is_updated = handler.compare_update_or_insert(
                         recent_entry, existing_entries

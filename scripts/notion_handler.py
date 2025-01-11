@@ -13,8 +13,11 @@ logging.basicConfig(filename="notion_api_errors.log", level=logging.ERROR)
 
 
 class DataHandler:
-    def __init__(self, database_id, notion_api_key, cutoff_date, now_date):
+    def __init__(
+        self, database_id, tag_database_id, notion_api_key, cutoff_date, now_date
+    ):
         self.database_id = database_id
+        self.tag_database_id = tag_database_id
         self.notion_api_key = notion_api_key
         self.headers = {
             "Authorization": f"Bearer {self.notion_api_key}",
@@ -147,6 +150,7 @@ class DataHandler:
                     "内容": {
                         "rich_text": [{"text": {"content": entry["description"]}}]
                     },
+                    "タグ": {"relation": entry["tag"]},
                 },
             }
             response = requests.post(url, headers=self.headers, json=json_data)
@@ -172,3 +176,86 @@ class DataHandler:
         except requests.exceptions.RequestException as e:
             logging.error(f"Failed to update entry with ID: {entry_id}\nError: {e}")
             print(f"Error occurred while updating entry with ID: {entry_id}: {e}")
+
+    def fetch_tags(self):
+
+        url = f"https://api.notion.com/v1/databases/{self.tag_database_id}/query"
+
+        # APIリクエストを送信
+        response = requests.post(url, headers=self.headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Error: {response.status_code}, {response.text}")
+            return {}
+
+    def extract_relation_ids(self, response):
+        """
+        Notion APIのレスポンスから名前をキー、関連ページのIDを値とする辞書を生成します。
+        戻り値形式: { "名前": [{"id": "関連するページのID"}] }
+        """
+        results = response.get("results", [])
+        relation_dict = {}
+
+        for result in results:
+            # 名前を取得
+            title_property = result.get("properties", {}).get("名前", {})
+            title_content = title_property.get("title", [])
+            name = "".join([t.get("plain_text", "") for t in title_content])
+
+            # 関連するページのIDを追加
+            if name:
+                if name not in relation_dict:
+                    relation_dict[name] = []
+                relation_dict[name] = result["id"]
+
+        return relation_dict
+
+    def extract_names_as_string(self, relation_dict, delimiter=", "):
+        """
+        名前をキーにした辞書から、名前部分だけを抽出し、文字列に変換します。
+        :param relation_dict: 名前をキー、関連ページIDを値とした辞書
+        :param delimiter: 名前を結合する際の区切り文字（デフォルト: カンマ+スペース）
+        :return: 名前を結合した文字列
+        """
+        # relation_dictのキー（名前）を抽出して結合
+        return delimiter.join(relation_dict.keys())
+
+    def filtered_relation_ids_by_api_result(
+        self, gpt_result_array, extract_relation_ids
+    ):
+        """
+        GPTの結果配列と辞書をもとに、関連するページのIDを配列形式で返す。
+        戻り値形式: [{ "id": "値1" }, { "id": "値2" }, ...]
+        """
+        result = []  # 最終的な結果を格納するリスト
+        # dataをループしてextract_relation_idsから対応する値を取得
+        for value in gpt_result_array:
+            if (
+                isinstance(value, str) and value in extract_relation_ids
+            ):  # キーが文字列か確認
+                result.append({"id": extract_relation_ids[value]})
+        return result
+
+        # # レスポンスのステータスコードを確認
+        # if response.status_code != 200:
+        #     print(f"Error: {response.status_code}, {response.text}")
+        #     return []
+
+        # # JSONレスポンスを取得
+        # data = response.json()
+
+        # # タグ情報を取得
+        # tags = []
+        # for result in data.get("results", []):
+        #     # 「名前」フィールドからタイトルを抽出
+        #     title_property = result.get("properties", {}).get("名前", {})
+        #     title_content = title_property.get("title", [])
+
+        #     # 各テキスト要素を結合して完全なタイトルを作成
+        #     tag_name = "".join([t.get("plain_text", "") for t in title_content])
+        #     if tag_name:  # 空でない場合のみ追加
+        #         tags.append(tag_name)
+
+        # return tags
