@@ -1,6 +1,9 @@
 name: Scheduled Python Script with Python Version Consistencyv2
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '20 5 * * *' # 毎日午前0時に実行
 
