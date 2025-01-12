@@ -61,9 +61,15 @@ class ContentFetcher:
                     "url": getattr(entry, field_mapping["url"]),
                     "date": entry_date.strftime("%Y-%m-%d"),
                     "description": getattr(entry, field_mapping["description"]),
+                    # ここでは空
+                    "tag": [],
                 }
         except Exception as e:
             raise ParseError(
                 f"Error processing entry: {entry.title if 'title' in entry else 'Unknown'}: {e}"
             )
         return None
+
+    def add_tag_data(self, entry, filtered_relation_ids_by_api_result):
+        entry["tag"] = filtered_relation_ids_by_api_result
+        return entry
