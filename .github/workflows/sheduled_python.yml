@@ -47,6 +47,7 @@ jobs:
         CHAT_GPT_KEY: ${{ secrets.CHAT_GPT_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        NOTION_TAG_DATABASE_ID: ${{ secrets.NOTION_TAG_DATABASE_ID }}
         RSS_URLS: ${{ secrets.RSS_URLS }}
         PYTHONPATH: ${{ github.workspace }}
       run: |
