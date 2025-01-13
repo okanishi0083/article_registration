@@ -34,35 +34,89 @@ class DataHandler:
 
     def fetch_existing_entries(self):
         url = f"https://api.notion.com/v1/databases/{self.database_id}/query"
-        try:
-            response = requests.post(url, headers=self.headers, json=self.get_api_data)
-            response.raise_for_status()
-            entries = response.json()["results"]
+        url_info_map = {}
+        next_cursor = None
 
-            # URLをキー、ID、タイトル、内容を値とする辞書を作成
-            url_info_map = {
-                entry["properties"]["サイトのURL"]["url"]: {
-                    "id": entry["id"],
-                    "title": (
-                        entry["properties"]["タイトル"]["title"][0]["plain_text"]
-                        if entry["properties"]["タイトル"]["title"]
-                        else ""
-                    ),
-                    "content": (
-                        entry["properties"]["内容"]["rich_text"][0]["plain_text"]
-                        if entry["properties"]["内容"]["rich_text"]
-                        else ""
-                    ),
-                }
-                for entry in entries
-                if "サイトのURL" in entry["properties"]
-                and "url" in entry["properties"]["サイトのURL"]
-            }
+        try:
+            while True:
+                # ページネーション用のリクエストデータを準備
+                request_data = self.get_api_data.copy()
+                if next_cursor:
+                    request_data["start_cursor"] = next_cursor
+
+                response = requests.post(url, headers=self.headers, json=request_data)
+                response.raise_for_status()
+                data = response.json()
+
+                # 現在のリクエストで取得したデータを処理
+                entries = data.get("results", [])
+                url_info_map.update(
+                    {
+                        entry["properties"]["サイトのURL"]["url"]: {
+                            "id": entry["id"],
+                            "title": (
+                                entry["properties"]["タイトル"]["title"][0][
+                                    "plain_text"
+                                ]
+                                if entry["properties"]["タイトル"]["title"]
+                                else ""
+                            ),
+                            "content": (
+                                entry["properties"]["内容"]["rich_text"][0][
+                                    "plain_text"
+                                ]
+                                if entry["properties"]["内容"]["rich_text"]
+                                else ""
+                            ),
+                        }
+                        for entry in entries
+                        if "サイトのURL" in entry["properties"]
+                        and "url" in entry["properties"]["サイトのURL"]
+                    }
+                )
+
+                # 次のカーソルを取得
+                next_cursor = data.get("next_cursor")
+                if not data.get("has_more"):
+                    break
 
             return url_info_map
-            # return response.json()["results"]
+
         except requests.exceptions.RequestException as e:
-            raise FetchExistingEntriesError(f"Failed to fetch existing entries: {e}")
+            print(f"Error fetching entries: {e}")
+            return {}
+
+    # def fetch_existing_entries(self):
+    #     url = f"https://api.notion.com/v1/databases/{self.database_id}/query"
+    #     try:
+    #         response = requests.post(url, headers=self.headers, json=self.get_api_data)
+    #         response.raise_for_status()
+    #         entries = response.json()["results"]
+
+    #         # URLをキー、ID、タイトル、内容を値とする辞書を作成
+    #         url_info_map = {
+    #             entry["properties"]["サイトのURL"]["url"]: {
+    #                 "id": entry["id"],
+    #                 "title": (
+    #                     entry["properties"]["タイトル"]["title"][0]["plain_text"]
+    #                     if entry["properties"]["タイトル"]["title"]
+    #                     else ""
+    #                 ),
+    #                 "content": (
+    #                     entry["properties"]["内容"]["rich_text"][0]["plain_text"]
+    #                     if entry["properties"]["内容"]["rich_text"]
+    #                     else ""
+    #                 ),
+    #             }
+    #             for entry in entries
+    #             if "サイトのURL" in entry["properties"]
+    #             and "url" in entry["properties"]["サイトのURL"]
+    #         }
+
+    #         return url_info_map
+    #         # return response.json()["results"]
+    #     except requests.exceptions.RequestException as e:
+    #         raise FetchExistingEntriesError(f"Failed to fetch existing entries: {e}")
 
     def compare_update_or_insert(self, rss_entry, existing_entries):
         try:

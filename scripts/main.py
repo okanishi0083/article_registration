@@ -102,6 +102,22 @@ def main():
                 )
                 if recent_entry:
                     # TODO ここでchatgptapi呼び出し
+<<<<<<< HEAD
+                    # gpt_result = custom_gpt_client.send_message(
+                    #     tag_data=extract_names_as_string, entry=entry
+                    # )
+                    # # 取得した文字列を配列に変換
+                    # gpt_result_array = json.loads(gpt_result)
+                    # filtered_relation_ids_by_api_result = (
+                    #     handler.filtered_relation_ids_by_api_result(
+                    #         gpt_result_array, extract_relation_ids
+                    #     )
+                    # )
+
+                    # entry = fetcher.add_tag_data(
+                    #     recent_entry, filtered_relation_ids_by_api_result
+                    # )
+=======
                     gpt_result = custom_gpt_client.send_message(
                         tag_data=extract_names_as_string, entry=entry
                     )
@@ -116,6 +132,7 @@ def main():
                     entry = fetcher.add_tag_data(
                         recent_entry, filtered_relation_ids_by_api_result
                     )
+>>>>>>> a99280ffed702ddf7b933d18599254eb0ef40ffe
 
                     # 新規エントリーと更新エントリーを比較・更新
                     is_new, is_updated = handler.compare_update_or_insert(
