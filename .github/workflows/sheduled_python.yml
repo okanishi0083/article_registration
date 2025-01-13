@@ -1,6 +1,9 @@
 name: Scheduled Python Script with Python Version Consistencyv2
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '20 5 * * *' # 毎日午前0時に実行
 
@@ -40,8 +43,11 @@ jobs:
 
     - name: Pythonスクリプトを実行
       env:
+        CUSTOM_GPT_ID: ${{ secrets.CUSTOM_GPT_ID }}
+        CHAT_GPT_KEY: ${{ secrets.CHAT_GPT_KEY }}
         NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        NOTION_TAG_DATABASE_ID: ${{ secrets.NOTION_TAG_DATABASE_ID }}
         RSS_URLS: ${{ secrets.RSS_URLS }}
         PYTHONPATH: ${{ github.workspace }}
       run: |
